@@ -28,6 +28,10 @@ import androidx.lifecycle.LifecycleObserver
 import com.example.android.dessertpusher.databinding.ActivityMainBinding
 import timber.log.Timber
 
+private const val DESSERTS_KEY = "desserts_key"
+private const val REVENUE_KEY = "revenue_key"
+private const val TIMER_KEY = "timer_key"
+
 class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     private var revenue = 0
@@ -78,16 +82,23 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         // Setup dessertTimer, passing in the lifecycle
         dessertTimer = DessertTimer(this.lifecycle)
 
-        // TODO (03) Check here if the Bundle savedInstanceState is null. If it isn't, get the
-        // three values you saved and restore them: revenue, desserts sold and the timer's
-        // seconds count. Also make sure to show the correct image resource.
+
 
         // Set the TextViews to the right values
+        if(savedInstanceState != null){
+            dessertTimer.secondsCount = savedInstanceState.getInt(TIMER_KEY, 0)
+            dessertsSold = savedInstanceState.getInt(DESSERTS_KEY, 0)
+            revenue = savedInstanceState.getInt(REVENUE_KEY, 0)
+            showCurrentDessert()
+        }
+
         binding.revenue = revenue
         binding.amountSold = dessertsSold
 
         // Make sure the correct dessert is showing
         binding.dessertButton.setImageResource(currentDessert.imageId)
+
+
     }
 
     /**
@@ -156,10 +167,18 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         }
         return super.onOptionsItemSelected(item)
     }
+    
 
-    // TODO (01) Add lifecycle callback methods for onSaveInstanceState and onRestoreInstanceState
-    // TODO (02) In onSaveInstanceState, put the revenue, dessertsSold and
-    // dessertTimer.secondsCount in the state Bundle
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(REVENUE_KEY, revenue)
+        outState.putInt(DESSERTS_KEY, dessertsSold)
+        outState.putInt(TIMER_KEY, dessertTimer.secondsCount)
+        super.onSaveInstanceState(outState)
+    }
 
     /** Lifecycle Methods **/
     override fun onStart() {
