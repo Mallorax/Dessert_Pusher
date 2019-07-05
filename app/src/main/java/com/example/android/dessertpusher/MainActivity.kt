@@ -28,10 +28,9 @@ import androidx.lifecycle.LifecycleObserver
 import com.example.android.dessertpusher.databinding.ActivityMainBinding
 import timber.log.Timber
 
-/** onSaveInstanceState Bundle Keys **/
-const val KEY_REVENUE = "revenue_key"
-const val KEY_DESSERT_SOLD = "dessert_sold_key"
-const val KEY_TIMER_SECONDS = "timer_seconds_key"
+private const val DESSERTS_KEY = "desserts_key"
+private const val REVENUE_KEY = "revenue_key"
+private const val TIMER_KEY = "timer_key"
 
 class MainActivity : AppCompatActivity(), LifecycleObserver {
 
@@ -83,23 +82,23 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         // Setup dessertTimer, passing in the lifecycle
         dessertTimer = DessertTimer(this.lifecycle)
 
-        // If there is a savedInstanceState bundle, then you're "restarting" the activity
-        // If there isn't a bundle, then it's a "fresh" start
-        if (savedInstanceState != null) {
-            // Get all the game state information from the bundle, set it
-            revenue = savedInstanceState.getInt(KEY_REVENUE, 0)
-            dessertsSold = savedInstanceState.getInt(KEY_DESSERT_SOLD, 0)
-            dessertTimer.secondsCount = savedInstanceState.getInt(KEY_TIMER_SECONDS, 0)
-            showCurrentDessert()
 
-        }
 
         // Set the TextViews to the right values
+        if(savedInstanceState != null){
+            dessertTimer.secondsCount = savedInstanceState.getInt(TIMER_KEY, 0)
+            dessertsSold = savedInstanceState.getInt(DESSERTS_KEY, 0)
+            revenue = savedInstanceState.getInt(REVENUE_KEY, 0)
+            showCurrentDessert()
+        }
+
         binding.revenue = revenue
         binding.amountSold = dessertsSold
 
         // Make sure the correct dessert is showing
         binding.dessertButton.setImageResource(currentDessert.imageId)
+
+
     }
 
     /**
@@ -168,21 +167,17 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
         }
         return super.onOptionsItemSelected(item)
     }
+    
 
-    /**
-     * Called when the user navigates away from the app but might come back
-     */
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt(KEY_REVENUE, revenue)
-        outState.putInt(KEY_DESSERT_SOLD, dessertsSold)
-        outState.putInt(KEY_TIMER_SECONDS, dessertTimer.secondsCount)
-        Timber.i("onSaveInstanceState Called")
-        super.onSaveInstanceState(outState)
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-        Timber.i("onRestoreInstanceState Called")
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(REVENUE_KEY, revenue)
+        outState.putInt(DESSERTS_KEY, dessertsSold)
+        outState.putInt(TIMER_KEY, dessertTimer.secondsCount)
+        super.onSaveInstanceState(outState)
     }
 
     /** Lifecycle Methods **/
